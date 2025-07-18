@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkDowner - シンプルなマークダウンビューワー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        
+        .download-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .demo-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        .demo-video {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 8px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        pre code {
+            background: none;
+            color: inherit;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MarkDowner</h1>
+            <p class="subtitle">シンプルで高速なマークダウンビューワー</p>
+        </header>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📝</div>
+                <h3>即座プレビュー</h3>
+                <p>マークダウンをリアルタイムでHTMLプレビュー</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">📁</div>
+                <h3>複数ファイル対応</h3>
+                <p>タブ機能で複数のファイルを同時に管理</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h3>ドラッグ&ドロップ</h3>
+                <p>ファイルを直接ドロップして簡単読み込み</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🚀</div>
+                <h3>高速・軽量</h3>
+                <p>単一バイナリで配布、ゼロコンフィグで起動</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🌍</div>
+                <h3>自動ブラウザ起動</h3>
+                <p>コマンド一つでサーバー起動＋ブラウザオープン</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🖥️</div>
+                <h3>クロスプラットフォーム</h3>
+                <p>Windows、macOS、Linux対応</p>
+            </div>
+        </div>
+        
+        <div class="download-section">
+            <h2>ダウンロード</h2>
+            <p>お使いのOSに応じてダウンロードしてください</p>
+            
+            <div class="download-buttons">
+                <a href="https://github.com/hirokitakamura/markdowner/releases/latest/download/markdowner-darwin-amd64" class="btn">
+                    🍎 macOS (Intel)
+                </a>
+                <a href="https://github.com/hirokitakamura/markdowner/releases/latest/download/markdowner-darwin-arm64" class="btn">
+                    🍎 macOS (Apple Silicon)
+                </a>
+                <a href="https://github.com/hirokitakamura/markdowner/releases/latest/download/markdowner-windows-amd64.exe" class="btn">
+                    🪟 Windows
+                </a>
+                <a href="https://github.com/hirokitakamura/markdowner/releases/latest/download/markdowner-linux-amd64" class="btn">
+                    🐧 Linux
+                </a>
+            </div>
+            
+            <h3>Go Install</h3>
+            <pre><code>go install github.com/hirokitakamura/markdowner@latest</code></pre>
+            
+            <h3>使い方</h3>
+            <pre><code># エイリアス設定（推奨）
+echo 'alias md="/path/to/markdowner"' >> ~/.zshrc
+source ~/.zshrc
+
+# 起動
+md</code></pre>
+            
+            <p>
+                <a href="https://github.com/hirokitakamura/markdowner" class="btn btn-secondary">
+                    📚 GitHub Repository
+                </a>
+            </p>
+        </div>
+        
+        <div class="demo-section">
+            <h2>特徴</h2>
+            <ul>
+                <li><strong>サイドバーインターフェース</strong>: 左側でファイル管理、右側で全画面プレビュー</li>
+                <li><strong>複数ファイル対応</strong>: タブで簡単切り替え、×ボタンで閉じる</li>
+                <li><strong>ドラッグ&ドロップ</strong>: ファイルを直接ドロップして読み込み</li>
+                <li><strong>ゼロコンフィグ</strong>: 設定ファイル不要、すぐに使える</li>
+                <li><strong>高パフォーマンス</strong>: 起動時間 &lt; 100ms、変換速度 &lt; 50ms</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
