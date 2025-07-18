@@ -2,7 +2,7 @@
 
 MarkDownerは、Go言語で実装されたシンプルで高速なマークダウンビューワーです。
 
-🌐 **Web版**: [https://markdowner.vercel.app](https://markdowner.vercel.app)  
+🌐 **Web版**: [https://mark-downer-sigma.vercel.app](https://mark-downer-sigma.vercel.app)  
 💻 **ローカル版**: 単一バイナリで即座に起動
 
 ## 特徴
@@ -23,27 +23,20 @@ MarkDownerは、Go言語で実装されたシンプルで高速なマークダ�
 ## 使い方
 
 ### 方法1: Web版（インストール不要）
-ブラウザで直接アクセス: [https://markdowner.vercel.app](https://markdowner.vercel.app)
+ブラウザで直接アクセス: [https://mark-downer-sigma.vercel.app](https://mark-downer-sigma.vercel.app)
 
 ### 方法2: ローカル版
 
-#### バイナリ配布
-[リリースページ](https://github.com/hirokitakamura/markdowner/releases/latest)から実行ファイルをダウンロード：
-- `markdowner-darwin-amd64` (macOS Intel)
-- `markdowner-darwin-arm64` (macOS Apple Silicon)
-- `markdowner-windows-amd64.exe` (Windows)
-- `markdowner-linux-amd64` (Linux)
+#### ソースからビルド
+```bash
+git clone https://github.com/infoHiroki/MarkDowner.git
+cd MarkDowner
+go build -o markdowner
+```
 
 #### Go install
 ```bash
-go install github.com/hirokitakamura/markdowner@latest
-```
-
-#### ソースからビルド
-```bash
-git clone https://github.com/hirokitakamura/markdowner.git
-cd markdowner
-go build -o markdowner
+go install github.com/infoHiroki/MarkDowner@latest
 ```
 
 ### 基本的な使い方（ローカル版）

@@ -24,7 +24,7 @@ go build -o markdowner
 PORT=3000 ./markdowner
 
 # グローバルインストール
-go install github.com/hirokitakamura/markdowner@latest
+go install github.com/infoHiroki/MarkDowner@latest
 
 # クロスプラットフォームビルド（Makefile使用）
 make build-all
@@ -267,7 +267,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ### Web版（Vercel）
 プロジェクトはVercelで自動デプロイされます：
-- **本番環境**: https://markdowner.vercel.app
+- **本番環境**: https://mark-downer-sigma.vercel.app
 - **デプロイ方法**: mainブランチへのpushで自動デプロイ
 - **プレビュー**: PRごとに自動でプレビューURL生成
 
