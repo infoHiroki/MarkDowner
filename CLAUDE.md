@@ -7,7 +7,7 @@
 MarkDownerは、シンプルで高速なマークダウンビューワーをGo言語で実装したプロジェクトです。KISS、DRY、YAGNI原則に従い、必要最小限の機能に絞って開発されています。
 
 ### スコープ
-- **含む**: マークダウンファイルの読み込みとHTML変換・表示、複数ファイルのタブ表示、ドラッグ&ドロップ
+- **含む**: マークダウンファイルの読み込みとHTML変換・表示、複数ファイルのタブ表示、ドラッグ&ドロップ、Web版配布、PWA対応
 - **含まない**: 編集機能、ファイル保存、プラグイン機構
 
 ## コマンド
@@ -115,19 +115,34 @@ make dev
 
 ```
 MarkDowner/
-├── main.go              # エントリーポイント
+├── main.go              # エントリーポイント（ローカル版）
 ├── go.mod              # Goモジュール定義
 ├── go.sum              # 依存関係ロック
 ├── internal/
 │   ├── markdown/       # マークダウン処理
-│   │   └── parser.go
+│   │   ├── parser.go
+│   │   └── parser_test.go
 │   └── handler/        # リクエストハンドラー
-│       └── handler.go
-├── web/                # 静的ファイル
-│   └── index.html
+│       ├── handler.go
+│       └── handler_test.go
+├── api/                # Vercel Functions
+│   ├── render.go       # マークダウン変換API
+│   ├── go.mod
+│   └── go.sum
+├── public/             # Vercel静的ファイル
+│   ├── index.html
+│   ├── favicon.svg
+│   └── manifest.json
+├── web/                # ローカル版静的ファイル
+│   ├── index.html
+│   └── static/
+│       └── favicon.svg
 ├── docs/               # GitHub Pages用
-│   └── index.html
-├── test/               # テストファイル
+│   ├── index.html      # プロジェクトサイト
+│   └── MOBILE_DESIGN.md # モバイル対応設計書
+├── assets/             # アイコンアセット
+│   └── icons/
+├── vercel.json         # Vercelデプロイ設定
 ├── CLAUDE.md           # このファイル
 ├── README.md           # プロジェクトドキュメント
 ├── LICENSE             # MITライセンス
@@ -247,3 +262,27 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
+
+## デプロイ
+
+### Web版（Vercel）
+プロジェクトはVercelで自動デプロイされます：
+- **本番環境**: https://markdowner.vercel.app
+- **デプロイ方法**: mainブランチへのpushで自動デプロイ
+- **プレビュー**: PRごとに自動でプレビューURL生成
+
+### ローカル版
+```bash
+# 単一バイナリを生成
+go build -o markdowner
+
+# 実行
+./markdowner
+```
+
+## 新機能追加の履歴
+- ✅ ドラッグ&ドロップによるファイル並び替え
+- ✅ ファイルごとのスクロール位置記憶
+- ✅ SVGアイコンセット追加
+- ✅ Web版対応（Vercel Functions）
+- ✅ PWA基盤（manifest.json）

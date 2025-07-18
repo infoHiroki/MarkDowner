@@ -2,41 +2,51 @@
 
 MarkDownerは、Go言語で実装されたシンプルで高速なマークダウンビューワーです。
 
+🌐 **Web版**: [https://markdowner.vercel.app](https://markdowner.vercel.app)  
+💻 **ローカル版**: 単一バイナリで即座に起動
+
 ## 特徴
 
 - 📝 マークダウンの即座プレビュー
 - 📁 複数ファイルの同時表示とタブ切り替え
 - 🎯 ドラッグ&ドロップファイル読み込み
+- 🖱️ タブのドラッグ&ドロップ並び替え
+- 📍 ファイルごとのスクロール位置記憶
 - 🖥️ サイドバー式インターフェース
 - 🚀 高速・軽量（単一バイナリ）
 - 🔧 ゼロコンフィグ（設定不要）
 - 🌍 自動ブラウザ起動
 - 🎨 シンタックスハイライト
+- ☁️ Web版対応（Vercel）
+- 📱 PWA対応（manifest.json）
 
-## インストール
+## 使い方
 
-### 方法1: バイナリ配布
+### 方法1: Web版（インストール不要）
+ブラウザで直接アクセス: [https://markdowner.vercel.app](https://markdowner.vercel.app)
+
+### 方法2: ローカル版
+
+#### バイナリ配布
 [リリースページ](https://github.com/hirokitakamura/markdowner/releases/latest)から実行ファイルをダウンロード：
 - `markdowner-darwin-amd64` (macOS Intel)
 - `markdowner-darwin-arm64` (macOS Apple Silicon)
 - `markdowner-windows-amd64.exe` (Windows)
 - `markdowner-linux-amd64` (Linux)
 
-### 方法2: Go install
+#### Go install
 ```bash
 go install github.com/hirokitakamura/markdowner@latest
 ```
 
-### 方法3: ソースからビルド
+#### ソースからビルド
 ```bash
 git clone https://github.com/hirokitakamura/markdowner.git
 cd markdowner
 go build -o markdowner
 ```
 
-## 使い方
-
-### 基本的な使い方
+### 基本的な使い方（ローカル版）
 ```bash
 ./markdowner
 ```
