@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/render.go": {
-      "runtime": "go1.x"
+      "maxDuration": 10
     }
   },
   "routes": [
