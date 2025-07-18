@@ -1,4 +1,4 @@
-module api
+module github.com/infoHiroki/MarkDowner/api
 
 go 1.21
 
