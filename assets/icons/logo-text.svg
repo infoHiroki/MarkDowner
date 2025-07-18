@@ -1,0 +1,10 @@
+<svg width="200" height="40" viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- ロゴ部分 -->
+  <circle cx="20" cy="20" r="18" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+  <path d="M8 12V28H10.5V17L14.5 24H15.5L19.5 17V28H22V12H18.5L14.75 21L11 12H8Z" fill="white"/>
+  <path d="M25 16V22H23L27 26L31 22H29V16H25Z" fill="white"/>
+  
+  <!-- テキスト部分 -->
+  <text x="50" y="15" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="currentColor">Mark</text>
+  <text x="50" y="30" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#3498db">Downer</text>
+</svg>
