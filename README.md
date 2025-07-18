@@ -16,10 +16,11 @@ MarkDownerは、Go言語で実装されたシンプルで高速なマークダ�
 ## インストール
 
 ### 方法1: バイナリ配布
-リリースページから実行ファイルをダウンロード：
-- `markdowner` (macOS)
-- `markdowner.exe` (Windows)
-- `markdowner-linux` (Linux)
+[リリースページ](https://github.com/hirokitakamura/markdowner/releases/latest)から実行ファイルをダウンロード：
+- `markdowner-darwin-amd64` (macOS Intel)
+- `markdowner-darwin-arm64` (macOS Apple Silicon)
+- `markdowner-windows-amd64.exe` (Windows)
+- `markdowner-linux-amd64` (Linux)
 
 ### 方法2: Go install
 ```bash
@@ -43,8 +44,11 @@ go build -o markdowner
 
 ### エイリアス設定（推奨）
 ```bash
-# ~/.zshrc に追加
-alias md="/path/to/markdowner"
+# ~/.zshrc に追加（お使いのパスに変更してください）
+alias md="/Users/your-username/Documents/Dev/MarkDowner/markdowner"
+
+# 設定を反映
+source ~/.zshrc
 
 # 使い方
 md  # サーバー起動＋ブラウザ自動オープン
@@ -115,6 +119,12 @@ go fmt ./...
 
 # 静的解析
 go vet ./...
+
+# 全プラットフォーム向けビルド（Makefile使用）
+make build-all
+
+# リリース準備
+make release
 ```
 
 ### クロスコンパイル
@@ -125,8 +135,11 @@ GOOS=windows GOARCH=amd64 go build -o markdowner.exe
 # Linux
 GOOS=linux GOARCH=amd64 go build -o markdowner-linux
 
-# macOS
-GOOS=darwin GOARCH=amd64 go build -o markdowner
+# macOS Intel
+GOOS=darwin GOARCH=amd64 go build -o markdowner-darwin-amd64
+
+# macOS Apple Silicon
+GOOS=darwin GOARCH=arm64 go build -o markdowner-darwin-arm64
 ```
 
 ## API
