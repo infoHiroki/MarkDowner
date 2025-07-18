@@ -2,6 +2,14 @@
 
 このファイルは、このリポジトリのコードを扱う際のClaude Code (claude.ai/code)へのガイダンスを提供します。
 
+## プロジェクト概要
+
+MarkDownerは、シンプルで高速なマークダウンビューワーをGo言語で実装したプロジェクトです。KISS、DRY、YAGNI原則に従い、必要最小限の機能に絞って開発されています。
+
+### スコープ
+- **含む**: マークダウンファイルの読み込みとHTML変換・表示、複数ファイルのタブ表示、ドラッグ&ドロップ
+- **含まない**: 編集機能、ファイル保存、プラグイン機構
+
 ## コマンド
 
 ### ビルドと実行
@@ -17,6 +25,9 @@ PORT=3000 ./markdowner
 
 # グローバルインストール
 go install github.com/hirokitakamura/markdowner@latest
+
+# クロスプラットフォームビルド（Makefile使用）
+make build-all
 ```
 
 ### テスト
@@ -31,6 +42,9 @@ go test ./internal/handler -v
 # 特定のテストを実行
 go test -run TestConvert ./internal/markdown -v
 go test -run TestRenderHandler ./internal/handler -v
+
+# カバレッジレポート生成
+make test-coverage
 ```
 
 ### 開発
@@ -43,17 +57,33 @@ go fmt ./...
 
 # 問題のチェック
 go vet ./...
+
+# 完全な開発サイクル
+make dev
 ```
 
 ## アーキテクチャ
 
-これはTDD開発でKISS/DRY/YAGNI原則に従うミニマリストなマークダウンビューアです。
+### 全体構成
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Browser   │────▶│  Go Server   │────▶│  File I/O   │
+│  (Client)   │◀────│   (API)      │◀────│             │
+└─────────────┘     └──────────────┘     └─────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │   Markdown   │
+                    │   Parser     │
+                    └──────────────┘
+```
 
 ### 開発原則
 
 - **KISS (Keep It Simple, Stupid)**: シンプルで理解しやすいコードを維持
 - **DRY (Don't Repeat Yourself)**: コードの重複を避け、再利用可能なコンポーネントを作成
 - **YAGNI (You Aren't Gonna Need It)**: 必要になるまで機能を追加しない、最小限の実装
+- **TDD (Test-Driven Development)**: テスト駆動開発で品質を保証
 
 ### コアコンポーネント
 
@@ -72,14 +102,92 @@ go vet ./...
    - 埋め込みファイルシステムから静的ファイルを提供
    - APIコールを適切なハンドラーにルーティング
    - PORT環境変数でポート設定可能
+   - 起動時に自動でブラウザを開く
 
 4. **フロントエンド** (`web/index.html`)
    - インラインCSS/JavaScriptを持つシングルページアプリケーション
-   - 300ミリ秒のデバウンス付きリアルタイムプレビュー
-   - .md/.markdownファイルのアップロードサポート
+   - サイドバーレイアウト（左：ファイル管理、右：プレビュー）
+   - 複数ファイルのタブ管理
+   - ドラッグ&ドロップファイルアップロード
    - 外部依存関係なし
 
-### 主要な設計決定
+## ディレクトリ構成
+
+```
+MarkDowner/
+├── main.go              # エントリーポイント
+├── go.mod              # Goモジュール定義
+├── go.sum              # 依存関係ロック
+├── internal/
+│   ├── markdown/       # マークダウン処理
+│   │   └── parser.go
+│   └── handler/        # リクエストハンドラー
+│       └── handler.go
+├── web/                # 静的ファイル
+│   └── index.html
+├── docs/               # GitHub Pages用
+│   └── index.html
+├── test/               # テストファイル
+├── CLAUDE.md           # このファイル
+├── README.md           # プロジェクトドキュメント
+├── LICENSE             # MITライセンス
+├── Makefile           # ビルド自動化
+└── .github/
+    └── workflows/
+        └── release.yml # CI/CD設定
+```
+
+## API仕様
+
+### POST /api/render
+マークダウンをHTMLに変換
+
+**リクエスト:**
+```json
+{
+  "markdown": "# Hello World\nThis is **bold** text."
+}
+```
+
+**レスポンス（成功）:**
+```json
+{
+  "html": "<h1 id=\"hello-world\">Hello World</h1>\n<p>This is <strong>bold</strong> text.</p>",
+  "success": true
+}
+```
+
+**レスポンス（エラー）:**
+```json
+{
+  "success": false
+}
+```
+
+## テスト戦略
+
+### ユニットテスト
+- パーサー機能: 各種マークダウン記法の変換
+- ハンドラー: HTTPリクエスト/レスポンス
+- エラーハンドリング
+
+### テスト方針
+- 包括的なテストケースを持つテーブル駆動テスト
+- テストは通常の操作、エッジケース、エラー状態をカバー
+- HTTPハンドラーは`httptest`パッケージでテスト
+- マークダウンパーサーは様々なCommonMark構文に対してテスト
+
+## セキュリティ考慮事項
+- XSS対策: goldmarkの安全なHTML出力
+- パストラバーサル対策: ファイルパス検証
+- CORS設定: 同一オリジンのみ許可
+
+## パフォーマンス目標
+- 起動時間: < 100ミリ秒
+- 1MBファイルの変換: < 50ミリ秒
+- メモリ使用量: < 50MB
+
+## 主要な設計決定
 
 - **ゼロ設定**: 設定ファイル不要、すぐに使える
 - **単一バイナリ**: 配布が簡単なようにすべてのアセットを埋め込み
@@ -87,22 +195,7 @@ go vet ./...
 - **標準ライブラリ**: Goの組み込みHTTPサーバーを使用、Webフレームワークなし
 - **テスト駆動**: すべてのコンポーネントに包括的なテストカバレッジ
 
-### API仕様
-
-**POST /api/render**
-- リクエスト: `{"markdown": "# Hello World"}`
-- レスポンス: `{"html": "<h1 id=\"hello-world\">Hello World</h1>", "success": true}`
-- エラーレスポンス: `{"success": false}`
-
-### テスト戦略
-
-- 包括的なテストケースを持つテーブル駆動テスト
-- テストは通常の操作、エッジケース、エラー状態をカバー
-- HTTPハンドラーは`httptest`パッケージでテスト
-- マークダウンパーサーは様々なCommonMark構文に対してテスト
-
-### パフォーマンス目標
-
-- 起動時間: < 100ミリ秒
-- 1MBファイルの変換: < 50ミリ秒
-- メモリ使用量: < 50MB
+## 制約事項
+- 外部依存は最小限に
+- 設定ファイル不要（ゼロコンフィグ）
+- シングルバイナリで配布可能
