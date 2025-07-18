@@ -292,6 +292,7 @@
         let openFiles = [];
         let activeFileIndex = -1;
         let draggedIndex = -1;
+        let fileScrollPositions = {}; // ファイルごとのスクロール位置を保存
         
         // デバウンス関数
         function debounce(func, wait) {
@@ -459,14 +460,30 @@
         // ファイルを切り替え
         function switchToFile(index) {
             if (index >= 0 && index < openFiles.length) {
+                // 現在のファイルのスクロール位置を保存
+                if (activeFileIndex >= 0 && openFiles[activeFileIndex]) {
+                    fileScrollPositions[openFiles[activeFileIndex].name] = preview.scrollTop;
+                }
+                
                 activeFileIndex = index;
                 updatePreview(openFiles[index].content);
                 updateFileTabs();
+                
+                // 新しいファイルのスクロール位置を復元
+                setTimeout(() => {
+                    const savedPosition = fileScrollPositions[openFiles[index].name] || 0;
+                    preview.scrollTop = savedPosition;
+                }, 10);
             }
         }
         
         // ファイルを閉じる
         function closeFile(index) {
+            const fileName = openFiles[index].name;
+            
+            // 閉じるファイルのスクロール位置を削除
+            delete fileScrollPositions[fileName];
+            
             openFiles.splice(index, 1);
             
             if (activeFileIndex === index) {
@@ -474,6 +491,12 @@
                 if (openFiles.length > 0) {
                     activeFileIndex = Math.min(activeFileIndex, openFiles.length - 1);
                     updatePreview(openFiles[activeFileIndex].content);
+                    
+                    // 新しいアクティブファイルのスクロール位置を復元
+                    setTimeout(() => {
+                        const savedPosition = fileScrollPositions[openFiles[activeFileIndex].name] || 0;
+                        preview.scrollTop = savedPosition;
+                    }, 10);
                 } else {
                     activeFileIndex = -1;
                     updatePreview('');
