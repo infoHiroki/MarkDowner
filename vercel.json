@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "api/render.go": {
+      "runtime": "go1.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/render",
+      "dest": "/api/render.go"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/favicon.svg"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/index.html"
+    }
+  ]
+}

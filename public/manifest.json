@@ -1,0 +1,17 @@
+{
+  "name": "MarkDowner - Markdown Viewer",
+  "short_name": "MarkDowner",
+  "description": "シンプルで高速なマークダウンビューワー",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#3498db",
+  "background_color": "#2c3e50",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

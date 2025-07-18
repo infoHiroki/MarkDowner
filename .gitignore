@@ -58,3 +58,5 @@ coverage.html
 # Temporary files
 tmp/
 temp/
+# Keep assets but ignore generated files
+assets/generated/
