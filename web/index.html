@@ -64,14 +64,15 @@
             border: none;
             padding: 0.75rem;
             border-radius: 4px;
-            cursor: pointer;
+            cursor: grab;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: space-between;
             color: #ecf0f1;
             text-align: left;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s;
+            user-select: none;
         }
         
         .file-tab:hover {
@@ -83,11 +84,23 @@
             color: white;
         }
         
+        .file-tab.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+            cursor: grabbing;
+            z-index: 1000;
+        }
+        
+        .file-tab.drag-over {
+            border-top: 3px solid #e74c3c;
+        }
+        
         .file-tab-name {
             flex: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            pointer-events: none;
         }
         
         .file-tab .close-btn {
@@ -237,6 +250,7 @@
         
         let openFiles = [];
         let activeFileIndex = -1;
+        let draggedIndex = -1;
         
         // デバウンス関数
         function debounce(func, wait) {
@@ -286,17 +300,84 @@
             openFiles.forEach((file, index) => {
                 const tab = document.createElement('button');
                 tab.className = 'file-tab' + (index === activeFileIndex ? ' active' : '');
+                tab.draggable = true;
+                tab.dataset.index = index;
                 tab.innerHTML = `
                     <span class="file-tab-name">${file.name}</span>
                     <span class="close-btn" onclick="closeFile(${index})">×</span>
                 `;
+                
+                // クリックイベント
                 tab.onclick = (e) => {
                     if (!e.target.classList.contains('close-btn')) {
                         switchToFile(index);
                     }
                 };
+                
+                // ドラッグイベント
+                tab.addEventListener('dragstart', handleDragStart);
+                tab.addEventListener('dragover', handleDragOver);
+                tab.addEventListener('drop', handleDrop);
+                tab.addEventListener('dragend', handleDragEnd);
+                
                 fileTabs.appendChild(tab);
             });
+        }
+        
+        // ドラッグ開始
+        function handleDragStart(e) {
+            draggedIndex = parseInt(e.target.dataset.index);
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        // ドラッグオーバー
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const targetIndex = parseInt(e.target.closest('.file-tab').dataset.index);
+            if (targetIndex !== draggedIndex) {
+                e.target.closest('.file-tab').classList.add('drag-over');
+            }
+        }
+        
+        // ドロップ
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetIndex = parseInt(e.target.closest('.file-tab').dataset.index);
+            
+            if (draggedIndex !== -1 && targetIndex !== draggedIndex) {
+                // ファイルの順序を入れ替え
+                const draggedFile = openFiles[draggedIndex];
+                openFiles.splice(draggedIndex, 1);
+                openFiles.splice(targetIndex, 0, draggedFile);
+                
+                // アクティブなインデックスを調整
+                if (activeFileIndex === draggedIndex) {
+                    activeFileIndex = targetIndex;
+                } else if (activeFileIndex > draggedIndex && activeFileIndex <= targetIndex) {
+                    activeFileIndex--;
+                } else if (activeFileIndex < draggedIndex && activeFileIndex >= targetIndex) {
+                    activeFileIndex++;
+                }
+                
+                updateFileTabs();
+            }
+            
+            // クリーンアップ
+            document.querySelectorAll('.file-tab').forEach(tab => {
+                tab.classList.remove('drag-over');
+            });
+        }
+        
+        // ドラッグ終了
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.file-tab').forEach(tab => {
+                tab.classList.remove('drag-over');
+            });
+            draggedIndex = -1;
         }
         
         // ファイルを追加
