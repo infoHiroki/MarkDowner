@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkDowner - Markdown Viewer</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            margin: 0;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar h1 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo {
+            flex-shrink: 0;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .preview-pane {
+            background-color: white;
+            padding: 2rem;
+            overflow: auto;
+            flex: 1;
+            margin: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .file-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .file-tab {
+            background-color: #34495e;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 4px;
+            cursor: grab;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #ecf0f1;
+            text-align: left;
+            transition: background-color 0.2s, transform 0.2s;
+            user-select: none;
+        }
+        
+        .file-tab:hover {
+            background-color: #4a5f7a;
+        }
+        
+        .file-tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .file-tab.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+            cursor: grabbing;
+            z-index: 1000;
+        }
+        
+        .file-tab.drag-over {
+            border-top: 3px solid #e74c3c;
+        }
+        
+        .file-tab-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+        }
+        
+        .file-tab .close-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0.2rem;
+            margin-left: 0.5rem;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        
+        .file-tab .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .drag-handle {
+            margin-right: 0.5rem;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+        }
+        
+        .upload-icon {
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #7f8c8d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            background-color: #34495e;
+            transition: all 0.3s ease;
+            color: #bdc3c7;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #3498db;
+            background-color: #2c3e50;
+            color: #3498db;
+        }
+        
+        #preview {
+            overflow-y: auto;
+        }
+        
+        /* マークダウンスタイル */
+        #preview h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.3em;
+        }
+        
+        #preview h2 {
+            font-size: 1.5em;
+            margin-bottom: 0.5em;
+            margin-top: 1em;
+        }
+        
+        #preview h3 {
+            font-size: 1.25em;
+            margin-bottom: 0.5em;
+            margin-top: 1em;
+        }
+        
+        #preview p {
+            margin-bottom: 1em;
+            line-height: 1.6;
+        }
+        
+        #preview code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        #preview pre {
+            background-color: #f4f4f4;
+            padding: 1em;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+        
+        #preview pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        
+        #preview ul, #preview ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+        
+        #preview li {
+            margin-bottom: 0.5em;
+        }
+        
+        #preview a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        #preview a:hover {
+            text-decoration: underline;
+        }
+        
+        #preview blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 1em;
+            color: #666;
+            margin-bottom: 1em;
+        }
+        
+        .file-input {
+            margin-bottom: 1rem;
+        }
+        
+        input[type="file"] {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .file-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h1>
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="15" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+                    <path d="M6 8V24H8.5V13L12.5 20H13.5L17.5 13V24H20V8H16.5L12.75 17L9 8H6Z" fill="white"/>
+                    <path d="M23 12V18H21L25 22L29 18H27V12H23Z" fill="white"/>
+                </svg>
+            </div>
+            MarkDowner
+        </h1>
+        <div class="file-upload-area" id="dropArea">
+            <div class="upload-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 1L6 5H8V11H12V5H14L10 1Z" fill="currentColor"/>
+                    <path d="M4 15V17C4 17.5523 4.44772 18 5 18H15C15.5523 18 16 17.5523 16 17V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <p>ファイルをドラッグ&ドロップするか、クリックして選択してください</p>
+            <input type="file" id="fileInput" accept=".md,.markdown" multiple style="display: none;">
+        </div>
+        <div class="file-tabs" id="fileTabs"></div>
+    </div>
+    <main>
+        <div class="preview-pane">
+            <div id="preview"></div>
+        </div>
+    </main>
+    
+    <script>
+        const preview = document.getElementById('preview');
+        const fileInput = document.getElementById('fileInput');
+        const dropArea = document.getElementById('dropArea');
+        const fileTabs = document.getElementById('fileTabs');
+        
+        let openFiles = [];
+        let activeFileIndex = -1;
+        let draggedIndex = -1;
+        let fileScrollPositions = {}; // ファイルごとのスクロール位置を保存
+        
+        // デバウンス関数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // マークダウンを変換してプレビューを更新
+        async function updatePreview(markdown) {
+            if (!markdown) {
+                preview.innerHTML = '<p style="color: #666;">ファイルを選択してください</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/render', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ markdown }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    preview.innerHTML = data.html;
+                } else {
+                    preview.innerHTML = '<p style="color: red;">変換エラーが発生しました</p>';
+                }
+            } catch (error) {
+                preview.innerHTML = '<p style="color: red;">サーバーエラー: ' + error.message + '</p>';
+            }
+        }
+        
+        // ファイルタブを更新
+        function updateFileTabs() {
+            fileTabs.innerHTML = '';
+            
+            openFiles.forEach((file, index) => {
+                const tab = document.createElement('button');
+                tab.className = 'file-tab' + (index === activeFileIndex ? ' active' : '');
+                tab.draggable = true;
+                tab.dataset.index = index;
+                tab.innerHTML = `
+                    <div class="drag-handle">
+                        <svg width="12" height="16" viewBox="0 0 12 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="3" cy="4" r="1" fill="currentColor"/>
+                            <circle cx="9" cy="4" r="1" fill="currentColor"/>
+                            <circle cx="3" cy="8" r="1" fill="currentColor"/>
+                            <circle cx="9" cy="8" r="1" fill="currentColor"/>
+                            <circle cx="3" cy="12" r="1" fill="currentColor"/>
+                            <circle cx="9" cy="12" r="1" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 0.5rem; opacity: 0.8;">
+                        <path d="M3 2C2.44772 2 2 2.44772 2 3V13C2 13.5523 2.44772 14 3 14H13C13.5523 14 14 13.5523 14 13V6L10 2H3Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        <path d="M10 2V6H14" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    </svg>
+                    <span class="file-tab-name">${file.name}</span>
+                    <button class="close-btn" onclick="closeFile(${index})">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                `;
+                
+                // クリックイベント
+                tab.onclick = (e) => {
+                    if (!e.target.classList.contains('close-btn')) {
+                        switchToFile(index);
+                    }
+                };
+                
+                // ドラッグイベント
+                tab.addEventListener('dragstart', handleDragStart);
+                tab.addEventListener('dragover', handleDragOver);
+                tab.addEventListener('drop', handleDrop);
+                tab.addEventListener('dragend', handleDragEnd);
+                
+                fileTabs.appendChild(tab);
+            });
+        }
+        
+        // ドラッグ開始
+        function handleDragStart(e) {
+            draggedIndex = parseInt(e.target.dataset.index);
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        // ドラッグオーバー
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const targetIndex = parseInt(e.target.closest('.file-tab').dataset.index);
+            if (targetIndex !== draggedIndex) {
+                e.target.closest('.file-tab').classList.add('drag-over');
+            }
+        }
+        
+        // ドロップ
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetIndex = parseInt(e.target.closest('.file-tab').dataset.index);
+            
+            if (draggedIndex !== -1 && targetIndex !== draggedIndex) {
+                // ファイルの順序を入れ替え
+                const draggedFile = openFiles[draggedIndex];
+                openFiles.splice(draggedIndex, 1);
+                openFiles.splice(targetIndex, 0, draggedFile);
+                
+                // アクティブなインデックスを調整
+                if (activeFileIndex === draggedIndex) {
+                    activeFileIndex = targetIndex;
+                } else if (activeFileIndex > draggedIndex && activeFileIndex <= targetIndex) {
+                    activeFileIndex--;
+                } else if (activeFileIndex < draggedIndex && activeFileIndex >= targetIndex) {
+                    activeFileIndex++;
+                }
+                
+                updateFileTabs();
+            }
+            
+            // クリーンアップ
+            document.querySelectorAll('.file-tab').forEach(tab => {
+                tab.classList.remove('drag-over');
+            });
+        }
+        
+        // ドラッグ終了
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.file-tab').forEach(tab => {
+                tab.classList.remove('drag-over');
+            });
+            draggedIndex = -1;
+        }
+        
+        // ファイルを追加
+        function addFile(file, content) {
+            const existingIndex = openFiles.findIndex(f => f.name === file.name);
+            
+            if (existingIndex !== -1) {
+                // 既に開いているファイルの場合は内容を更新
+                openFiles[existingIndex].content = content;
+                switchToFile(existingIndex);
+            } else {
+                // 新しいファイルを追加
+                openFiles.push({ name: file.name, content });
+                switchToFile(openFiles.length - 1);
+            }
+            
+            updateFileTabs();
+        }
+        
+        // ファイルを切り替え
+        function switchToFile(index) {
+            if (index >= 0 && index < openFiles.length) {
+                // 現在のファイルのスクロール位置を保存
+                if (activeFileIndex >= 0 && openFiles[activeFileIndex]) {
+                    fileScrollPositions[openFiles[activeFileIndex].name] = preview.scrollTop;
+                }
+                
+                activeFileIndex = index;
+                updatePreview(openFiles[index].content);
+                updateFileTabs();
+                
+                // 新しいファイルのスクロール位置を復元
+                setTimeout(() => {
+                    const savedPosition = fileScrollPositions[openFiles[index].name] || 0;
+                    preview.scrollTop = savedPosition;
+                }, 10);
+            }
+        }
+        
+        // ファイルを閉じる
+        function closeFile(index) {
+            const fileName = openFiles[index].name;
+            
+            // 閉じるファイルのスクロール位置を削除
+            delete fileScrollPositions[fileName];
+            
+            openFiles.splice(index, 1);
+            
+            if (activeFileIndex === index) {
+                // アクティブなファイルを閉じた場合
+                if (openFiles.length > 0) {
+                    activeFileIndex = Math.min(activeFileIndex, openFiles.length - 1);
+                    updatePreview(openFiles[activeFileIndex].content);
+                    
+                    // 新しいアクティブファイルのスクロール位置を復元
+                    setTimeout(() => {
+                        const savedPosition = fileScrollPositions[openFiles[activeFileIndex].name] || 0;
+                        preview.scrollTop = savedPosition;
+                    }, 10);
+                } else {
+                    activeFileIndex = -1;
+                    updatePreview('');
+                }
+            } else if (activeFileIndex > index) {
+                activeFileIndex--;
+            }
+            
+            updateFileTabs();
+        }
+        
+        // ファイル処理
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type === 'text/markdown' || file.name.endsWith('.md') || file.name.endsWith('.markdown')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        addFile(file, e.target.result);
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        }
+        
+        // ファイル選択イベント
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        // ドラッグ&ドロップ
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+        
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('dragover');
+        });
+        
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        // グローバル関数として定義（HTMLから呼び出すため）
+        window.closeFile = closeFile;
+        
+        // 初期プレビュー
+        preview.innerHTML = `
+            <div style="text-align: center; padding: 4rem 2rem; color: #7f8c8d;">
+                <h2 style="margin-bottom: 1rem;">MarkDownerへようこそ</h2>
+                <p style="margin-bottom: 2rem;">左のサイドバーからマークダウンファイルを選択してください</p>
+                <div style="background-color: #ecf0f1; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+                    <h3 style="margin-bottom: 1rem;">使い方:</h3>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>ファイルをドラッグ&ドロップで読み込み</li>
+                        <li>複数ファイルの同時表示</li>
+                        <li>タブで簡単に切り替え</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+    </script>
+</body>
+</html>
